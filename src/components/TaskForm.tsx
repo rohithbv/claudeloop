@@ -6,9 +6,10 @@ import type { AuthMode } from '@/lib/tasks';
 
 interface Props {
   onCreated: () => void;
+  onCancel?: () => void;
 }
 
-export default function TaskForm({ onCreated }: Props) {
+export default function TaskForm({ onCreated, onCancel }: Props) {
   const [name, setName] = useState('');
   const [prompt, setPrompt] = useState('');
   const [model, setModel] = useState<string>(MODELS[1].id);
@@ -51,7 +52,19 @@ export default function TaskForm({ onCreated }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4">
-      <h2 className="text-base font-semibold text-white">New Task</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-base font-semibold text-white">New Task</h2>
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="text-gray-500 hover:text-gray-300 transition-colors text-xl leading-none"
+            aria-label="Close"
+          >
+            &times;
+          </button>
+        )}
+      </div>
 
       {error && <p className="text-sm text-red-400">{error}</p>}
 
@@ -148,13 +161,25 @@ export default function TaskForm({ onCreated }: Props) {
         </div>
       </div>
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-      >
-        {submitting ? 'Creating…' : 'Create Task'}
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          type="submit"
+          disabled={submitting}
+          className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+        >
+          {submitting ? 'Creating…' : 'Create Task'}
+        </button>
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={submitting}
+            className="text-sm text-gray-400 hover:text-gray-200 transition-colors"
+          >
+            Cancel
+          </button>
+        )}
+      </div>
     </form>
   );
 }

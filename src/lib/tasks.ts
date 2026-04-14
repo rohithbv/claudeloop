@@ -1,5 +1,7 @@
 import db from './db';
 
+export type AuthMode = 'subscription' | 'api_key';
+
 export interface Task {
   id: string;
   name: string;
@@ -7,6 +9,7 @@ export interface Task {
   model: string;
   cron: string;
   enabled: boolean;
+  auth_mode: AuthMode;
   created_at: number;
   updated_at: number;
 }
@@ -18,6 +21,7 @@ interface TaskRow {
   model: string;
   cron: string;
   enabled: number;
+  auth_mode: AuthMode;
   created_at: number;
   updated_at: number;
 }
@@ -44,18 +48,30 @@ export function getEnabledTasks(): Task[] {
 export function createTask(data: Omit<Task, 'created_at' | 'updated_at'>): Task {
   const now = Date.now();
   db.prepare(
-    'INSERT INTO tasks (id, name, prompt, model, cron, enabled, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-  ).run(data.id, data.name, data.prompt, data.model, data.cron, data.enabled ? 1 : 0, now, now);
+    'INSERT INTO tasks (id, name, prompt, model, cron, enabled, auth_mode, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  ).run(data.id, data.name, data.prompt, data.model, data.cron, data.enabled ? 1 : 0, data.auth_mode, now, now);
   return { ...data, created_at: now, updated_at: now };
 }
 
-export function updateTask(id: string, patch: Partial<Pick<Task, 'enabled' | 'name' | 'prompt' | 'model' | 'cron'>>): Task | undefined {
+export function updateTask(
+  id: string,
+  patch: Partial<Pick<Task, 'enabled' | 'name' | 'prompt' | 'model' | 'cron' | 'auth_mode'>>
+): Task | undefined {
   const task = getTask(id);
   if (!task) return undefined;
   const updated = { ...task, ...patch, updated_at: Date.now() };
   db.prepare(
-    'UPDATE tasks SET name=?, prompt=?, model=?, cron=?, enabled=?, updated_at=? WHERE id=?'
-  ).run(updated.name, updated.prompt, updated.model, updated.cron, updated.enabled ? 1 : 0, updated.updated_at, id);
+    'UPDATE tasks SET name=?, prompt=?, model=?, cron=?, enabled=?, auth_mode=?, updated_at=? WHERE id=?'
+  ).run(
+    updated.name,
+    updated.prompt,
+    updated.model,
+    updated.cron,
+    updated.enabled ? 1 : 0,
+    updated.auth_mode,
+    updated.updated_at,
+    id
+  );
   return updated;
 }
 

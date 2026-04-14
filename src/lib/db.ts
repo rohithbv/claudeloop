@@ -40,4 +40,10 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_exec_task ON executions(task_id, started_at DESC);
 `);
 
+// Migration: add auth_mode column to existing tasks tables
+const taskCols = db.prepare("PRAGMA table_info(tasks)").all() as Array<{ name: string }>;
+if (!taskCols.some((c) => c.name === 'auth_mode')) {
+  db.exec("ALTER TABLE tasks ADD COLUMN auth_mode TEXT NOT NULL DEFAULT 'subscription'");
+}
+
 export default db;

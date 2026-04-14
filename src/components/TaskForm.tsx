@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { MODELS } from '@/lib/models';
+import type { AuthMode } from '@/lib/tasks';
 
 interface Props {
   onCreated: () => void;
@@ -12,6 +13,7 @@ export default function TaskForm({ onCreated }: Props) {
   const [prompt, setPrompt] = useState('');
   const [model, setModel] = useState<string>(MODELS[1].id);
   const [cronExpr, setCronExpr] = useState('');
+  const [authMode, setAuthMode] = useState<AuthMode>('subscription');
   const [cronError, setCronError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -25,7 +27,7 @@ export default function TaskForm({ onCreated }: Props) {
     const res = await fetch('/api/tasks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, prompt, model, cron: cronExpr }),
+      body: JSON.stringify({ name, prompt, model, cron: cronExpr, auth_mode: authMode }),
     });
 
     setSubmitting(false);
@@ -43,6 +45,7 @@ export default function TaskForm({ onCreated }: Props) {
     setName('');
     setPrompt('');
     setCronExpr('');
+    setAuthMode('subscription');
     onCreated();
   }
 
@@ -90,24 +93,59 @@ export default function TaskForm({ onCreated }: Props) {
         />
       </div>
 
-      <div>
-        <label className="block text-xs text-gray-400 mb-1">
-          Schedule{' '}
-          <span className="text-gray-600 font-mono">(cron expression)</span>
-        </label>
-        <input
-          required
-          value={cronExpr}
-          onChange={(e) => { setCronExpr(e.target.value); setCronError(''); }}
-          className={`w-full bg-gray-800 border rounded-lg px-3 py-2 text-sm text-white font-mono placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 ${cronError ? 'border-red-500' : 'border-gray-700'}`}
-          placeholder="0 9 * * *  →  daily at 9 am"
-        />
-        {cronError && <p className="mt-1 text-xs text-red-400">{cronError}</p>}
-        <p className="mt-1 text-xs text-gray-600">
-          Examples: <span className="font-mono">* * * * *</span> every minute,{' '}
-          <span className="font-mono">0 * * * *</span> hourly,{' '}
-          <span className="font-mono">0 8 * * 1-5</span> weekdays 8 am
-        </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-xs text-gray-400 mb-1">
+            Schedule{' '}
+            <span className="text-gray-600 font-mono">(cron expression)</span>
+          </label>
+          <input
+            required
+            value={cronExpr}
+            onChange={(e) => { setCronExpr(e.target.value); setCronError(''); }}
+            className={`w-full bg-gray-800 border rounded-lg px-3 py-2 text-sm text-white font-mono placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 ${cronError ? 'border-red-500' : 'border-gray-700'}`}
+            placeholder="0 9 * * *  →  daily at 9 am"
+          />
+          {cronError && <p className="mt-1 text-xs text-red-400">{cronError}</p>}
+          <p className="mt-1 text-xs text-gray-600">
+            Examples: <span className="font-mono">* * * * *</span> every minute,{' '}
+            <span className="font-mono">0 * * * *</span> hourly,{' '}
+            <span className="font-mono">0 8 * * 1-5</span> weekdays 8 am
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-xs text-gray-400 mb-1">Authentication</label>
+          <div className="flex gap-2 mt-1">
+            <button
+              type="button"
+              onClick={() => setAuthMode('subscription')}
+              className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
+                authMode === 'subscription'
+                  ? 'bg-indigo-600 border-indigo-500 text-white'
+                  : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-500'
+              }`}
+            >
+              Claude Subscription
+            </button>
+            <button
+              type="button"
+              onClick={() => setAuthMode('api_key')}
+              className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
+                authMode === 'api_key'
+                  ? 'bg-indigo-600 border-indigo-500 text-white'
+                  : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-500'
+              }`}
+            >
+              API Key
+            </button>
+          </div>
+          <p className="mt-1.5 text-xs text-gray-600">
+            {authMode === 'subscription'
+              ? 'Uses credentials from `claude` CLI login (Pro/Max plan)'
+              : 'Uses ANTHROPIC_API_KEY from .env.local'}
+          </p>
+        </div>
       </div>
 
       <button

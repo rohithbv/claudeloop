@@ -30,12 +30,24 @@ export async function runTask(taskId: string, trigger: ExecutionTrigger): Promis
     // Dynamic import so this module only loads in the Node.js runtime
     const { query } = await import('@anthropic-ai/claude-agent-sdk');
 
+    // Build the env passed to the Claude subprocess. In subscription mode we
+    // strip ANTHROPIC_API_KEY so the SDK falls back to OAuth credentials
+    // stored by `claude` CLI login (~/.claude/). In api_key mode we require
+    // the key to be present.
+    const env: Record<string, string | undefined> = { ...process.env };
+    if (task.auth_mode === 'subscription') {
+      delete env.ANTHROPIC_API_KEY;
+    } else if (task.auth_mode === 'api_key' && !env.ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY is not set but task is configured for api_key auth');
+    }
+
     let output = '';
     const messages = query({
       prompt: task.prompt,
       options: {
         model: task.model,
         cwd: workspaceDir,
+        env,
         permissionMode: 'bypassPermissions',
         allowDangerouslySkipPermissions: true,
       },

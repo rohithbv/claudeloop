@@ -77,6 +77,7 @@ export default function TaskList({ tasks, onRefresh }: Props) {
             <th className="text-left px-4 py-3">Name</th>
             <th className="text-left px-4 py-3">Schedule</th>
             <th className="text-left px-4 py-3">Model</th>
+            <th className="text-left px-4 py-3">Auth</th>
             <th className="text-left px-4 py-3">Last Run</th>
             <th className="text-left px-4 py-3">Enabled</th>
             <th className="text-left px-4 py-3">Actions</th>
@@ -92,6 +93,15 @@ export default function TaskList({ tasks, onRefresh }: Props) {
               </td>
               <td className="px-4 py-3 font-mono text-gray-400 text-xs">{task.cron}</td>
               <td className="px-4 py-3 text-gray-400 text-xs">{task.model.replace('claude-', '').replace(/-\d+$/, '')}</td>
+              <td className="px-4 py-3">
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                  task.auth_mode === 'subscription'
+                    ? 'bg-violet-900/50 text-violet-300'
+                    : 'bg-blue-900/50 text-blue-300'
+                }`}>
+                  {task.auth_mode === 'subscription' ? 'subscription' : 'api key'}
+                </span>
+              </td>
               <td className="px-4 py-3">
                 {task.lastExecution ? (
                   <span className="flex items-center gap-2">

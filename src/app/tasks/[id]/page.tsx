@@ -94,6 +94,14 @@ export default function TaskDetailPage() {
               <span className="font-mono">{task.cron}</span>
               <span>&middot;</span>
               <span>{task.model}</span>
+              <span>&middot;</span>
+              <span className={`inline-flex items-center px-2 py-0.5 rounded font-medium ${
+                task.auth_mode === 'subscription'
+                  ? 'bg-violet-900/50 text-violet-300'
+                  : 'bg-blue-900/50 text-blue-300'
+              }`}>
+                {task.auth_mode === 'subscription' ? 'subscription' : 'api key'}
+              </span>
             </div>
           </div>
 

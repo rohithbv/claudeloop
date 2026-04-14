@@ -17,6 +17,7 @@ const PatchSchema = z.object({
   prompt: z.string().min(1).optional(),
   model: z.string().min(1).optional(),
   cron: z.string().min(1).optional(),
+  auth_mode: z.enum(['subscription', 'api_key']).optional(),
 });
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {

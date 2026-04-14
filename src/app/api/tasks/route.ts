@@ -20,6 +20,7 @@ const CreateSchema = z.object({
   prompt: z.string().min(1),
   model: z.enum(MODEL_IDS),
   cron: z.string().min(1),
+  auth_mode: z.enum(['subscription', 'api_key']).optional(),
 });
 
 export async function POST(req: Request) {
@@ -29,12 +30,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid request', details: parsed.error.flatten() }, { status: 400 });
   }
 
-  const { name, prompt, model, cron } = parsed.data;
+  const { name, prompt, model, cron, auth_mode } = parsed.data;
   if (!validateCron(cron)) {
     return NextResponse.json({ error: 'Invalid cron expression' }, { status: 400 });
   }
 
-  const task = createTask({ id: nanoid(), name, prompt, model, cron, enabled: true });
+  const task = createTask({
+    id: nanoid(),
+    name,
+    prompt,
+    model,
+    cron,
+    enabled: true,
+    auth_mode: auth_mode ?? 'subscription',
+  });
 
   // Register in the in-process scheduler
   reloadTask(task.id);

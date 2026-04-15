@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { nanoid } from 'nanoid';
 import { z } from 'zod';
-import { getAllTasks, createTask, getTask } from '@/lib/tasks';
+import { getAllTasks, createTask } from '@/lib/tasks';
 import { getLastExecutionForTask } from '@/lib/executions';
 import { reloadTask, validateCron } from '@/lib/scheduler';
 import { MODEL_IDS } from '@/lib/models';

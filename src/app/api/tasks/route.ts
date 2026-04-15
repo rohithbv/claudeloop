@@ -6,6 +6,8 @@ import { getLastExecutionForTask } from '@/lib/executions';
 import { reloadTask, validateCron } from '@/lib/scheduler';
 import { MODEL_IDS } from '@/lib/models';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const tasks = getAllTasks();
   const enriched = tasks.map((task) => ({

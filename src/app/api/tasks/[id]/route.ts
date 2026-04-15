@@ -4,6 +4,8 @@ import { getTask, updateTask, deleteTask } from '@/lib/tasks';
 import { reloadTask, unregisterTask } from '@/lib/scheduler';
 import { getLastExecutionForTask } from '@/lib/executions';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const task = getTask(id);

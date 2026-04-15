@@ -23,6 +23,10 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=3000
+# Prevent the bundled Claude CLI from downloading updates or phoning home at runtime.
+# Everything the CLI needs is already baked into node_modules at build time.
+ENV DISABLE_AUTOUPDATER=1
+ENV CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
 
 # @anthropic-ai/claude-agent-sdk spawns ripgrep and the claude CLI as child
 # processes — those binaries live inside node_modules and must stay intact.

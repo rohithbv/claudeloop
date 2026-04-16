@@ -26,6 +26,7 @@ export async function runTask(taskId: string, trigger: ExecutionTrigger): Promis
   const workspaceDir = path.join(WORKSPACES_DIR, taskId);
   fs.mkdirSync(workspaceDir, { recursive: true });
 
+  const stderrLines: string[] = [];
   try {
     // Dynamic import so this module only loads in the Node.js runtime
     const { query } = await import('@anthropic-ai/claude-agent-sdk');
@@ -41,7 +42,6 @@ export async function runTask(taskId: string, trigger: ExecutionTrigger): Promis
       throw new Error('ANTHROPIC_API_KEY is not set but task is configured for api_key auth');
     }
 
-    const stderrLines: string[] = [];
     let output = '';
     const messages = query({
       prompt: task.prompt,

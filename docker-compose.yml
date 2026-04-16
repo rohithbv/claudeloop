@@ -15,7 +15,7 @@ services:
       # on the host before starting this container. Regular `claude login`
       # stores the token in the macOS Keychain which is not accessible inside
       # the Linux container — setup-token writes it to ~/.claude instead.
-      - "${HOME}/.claude:/root/.claude"
+      - "${HOME}/.claude:/home/node/.claude"
     environment:
       # Only required for tasks configured with "API Key" auth mode.
       # Leave unset (or remove this line) when using subscription auth.

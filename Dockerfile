@@ -41,7 +41,12 @@ COPY package.json next.config.mjs ./
 RUN npm install -g @anthropic-ai/claude-code
 
 # Pre-create persistent directories; mount volumes over these at runtime.
-RUN mkdir -p data workspaces
+# Claude Code's --dangerously-skip-permissions flag is blocked when running as
+# root, so we switch to the built-in non-root 'node' user (UID 1000).
+RUN mkdir -p data workspaces /home/node/.claude \
+    && chown -R node:node /app /home/node/.claude
+
+USER node
 
 EXPOSE 3000
 

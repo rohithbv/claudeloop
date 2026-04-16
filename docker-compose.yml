@@ -8,13 +8,21 @@ services:
       - claudeloop-data:/app/data
       # Persist task working directories across container restarts
       - claudeloop-workspaces:/app/workspaces
-      # Mount host Claude CLI credentials for subscription auth.
-      # Run `claude` on the host and log in first, then start this container.
-      - "${HOME}/.claude:/root/.claude:ro"
+      # Mount host Claude CLI config directory for subscription auth.
+      # The CLI writes session data and history here at runtime, so it must
+      # be writable. Credentials must be file-based: run
+      #   claude setup-token
+      # on the host before starting this container. Regular `claude login`
+      # stores the token in the macOS Keychain which is not accessible inside
+      # the Linux container — setup-token writes it to ~/.claude instead.
+      - "${HOME}/.claude:/root/.claude"
     environment:
       # Only required for tasks configured with "API Key" auth mode.
       # Leave unset (or remove this line) when using subscription auth.
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      # Alternative subscription auth: set this to the token printed by
+      # `claude setup-token` to avoid relying on the ~/.claude volume mount.
+      - CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN:-}
 
 volumes:
   claudeloop-data:

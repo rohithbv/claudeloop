@@ -41,6 +41,7 @@ export async function runTask(taskId: string, trigger: ExecutionTrigger): Promis
       throw new Error('ANTHROPIC_API_KEY is not set but task is configured for api_key auth');
     }
 
+    const stderrLines: string[] = [];
     let output = '';
     const messages = query({
       prompt: task.prompt,
@@ -50,6 +51,7 @@ export async function runTask(taskId: string, trigger: ExecutionTrigger): Promis
         env,
         permissionMode: 'bypassPermissions',
         allowDangerouslySkipPermissions: true,
+        stderr: (data: string) => { stderrLines.push(data); },
       },
     });
 
@@ -58,8 +60,10 @@ export async function runTask(taskId: string, trigger: ExecutionTrigger): Promis
         if (message.subtype === 'success') {
           output = message.result ?? '';
         } else {
-          // Error result
-          throw new Error(message.errors?.join('\n') ?? 'Claude returned an error result');
+          const errMsg = message.errors?.join('\n') ?? 'Claude returned an error result';
+          const detail = `[${message.subtype}] ${errMsg}`;
+          const stderr = stderrLines.join('').trim();
+          throw new Error(stderr ? `${detail}\n\nDiagnostics:\n${stderr}` : detail);
         }
         break;
       }
@@ -68,7 +72,10 @@ export async function runTask(taskId: string, trigger: ExecutionTrigger): Promis
     finishExecution(execId, { status: 'success', output });
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : String(err);
-    finishExecution(execId, { status: 'error', error: errorMsg });
+    const stderr = stderrLines.join('').trim();
+    const fullError = stderr ? `${errorMsg}\n\nDiagnostics:\n${stderr}` : errorMsg;
+    console.error(`[runner] Task ${taskId} failed:`, fullError);
+    finishExecution(execId, { status: 'error', error: fullError });
   }
 
   return execId;

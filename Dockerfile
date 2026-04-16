@@ -37,6 +37,9 @@ COPY --from=deps    /app/node_modules ./node_modules
 COPY --from=builder /app/.next        ./.next
 COPY package.json next.config.mjs ./
 
+# Install Claude Code CLI globally so it is available as a subprocess at runtime.
+RUN npm install -g @anthropic-ai/claude-code
+
 # Pre-create persistent directories; mount volumes over these at runtime.
 RUN mkdir -p data workspaces
 

@@ -35,7 +35,7 @@ ENV CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
 # miss the vendor/ directory and cli.js used at runtime by the agent SDK).
 COPY --from=deps    /app/node_modules ./node_modules
 COPY --from=builder /app/.next        ./.next
-COPY package.json next.config.ts ./
+COPY package.json next.config.mjs ./
 
 # Pre-create persistent directories; mount volumes over these at runtime.
 RUN mkdir -p data workspaces

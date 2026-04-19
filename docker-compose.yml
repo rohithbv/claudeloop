@@ -2,7 +2,9 @@ services:
   claudeloop:
     build: .
     ports:
-      - "3000:3000"
+      - "0.0.0.0:${PORT:-3000}:${PORT:-3000}"
+    environment:
+      - PORT=${PORT:-3000}
     volumes:
       # Persist the SQLite database across container restarts
       - claudeloop-data:/app/data
@@ -15,15 +17,9 @@ services:
       # on the host before starting this container. Regular `claude login`
       # stores the token in the macOS Keychain which is not accessible inside
       # the Linux container — setup-token writes it to ~/.claude instead.
-      - "${HOME}/.claude:/home/node/.claude"
-    environment:
-      # Only required for tasks configured with "API Key" auth mode.
-      # Leave unset (or remove this line) when using subscription auth.
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-      # Alternative subscription auth: set this to the token printed by
-      # `claude setup-token` to avoid relying on the ~/.claude volume mount.
-      - CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN:-}
+      - claudeloop-home:/home/node/
 
 volumes:
   claudeloop-data:
   claudeloop-workspaces:
+  claudeloop-home:

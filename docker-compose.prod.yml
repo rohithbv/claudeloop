@@ -2,7 +2,7 @@ services:
   claudeloop:
     image: ghcr.io/rohithbv/claudeloop:latest
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:${PORT:-3000}"
     volumes:
       # Persist the SQLite database across container restarts
       - claudeloop-data:/app/data
@@ -10,8 +10,9 @@ services:
       - claudeloop-workspaces:/app/workspaces
       # Mount host Claude CLI credentials for subscription auth.
       # Run `claude` on the host and log in first, then start this container.
-      - "${HOME}/.claude:/home/node/.claude:ro"
+      - claudeloop-home:/home/node
     environment:
+      - PORT=${PORT:-3000}
       # Only required for tasks configured with "API Key" auth mode.
       # Leave unset (or remove this line) when using subscription auth.
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
@@ -20,3 +21,4 @@ services:
 volumes:
   claudeloop-data:
   claudeloop-workspaces:
+  claudeloop-home

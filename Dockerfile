@@ -23,6 +23,8 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+ENV NEXT_TELEMETRY_DISABLED=1
 # Prevent the bundled Claude CLI from downloading updates or phoning home at runtime.
 # Everything the CLI needs is already baked into node_modules at build time.
 ENV DISABLE_AUTOUPDATER=1

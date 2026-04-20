@@ -50,7 +50,6 @@ RUN mkdir -p data workspaces /home/node/.claude \
 
 USER node
 
-EXPOSE 3000
+EXPOSE ${PORT}
 
-# next start reads .next/ (baked at build time); no config file needed.
-CMD ["node_modules/.bin/next", "start"]
+CMD ["sh", "-c", "node_modules/.bin/next start --hostname 0.0.0.0 --port ${PORT:-3000}"]

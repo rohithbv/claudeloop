@@ -23,7 +23,6 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
 ENV NEXT_TELEMETRY_DISABLED=1
 # Prevent the bundled Claude CLI from downloading updates or phoning home at runtime.
 # Everything the CLI needs is already baked into node_modules at build time.
@@ -40,7 +39,7 @@ COPY --from=builder /app/.next        ./.next
 COPY package.json next.config.mjs ./
 
 # Install Claude Code CLI globally so it is available as a subprocess at runtime.
-RUN npm install -g @anthropic-ai/claude-code
+RUN npm install -g @anthropic-ai/claude-code@2.1.114
 
 # Pre-create persistent directories; mount volumes over these at runtime.
 # Claude Code's --dangerously-skip-permissions flag is blocked when running as
@@ -50,6 +49,6 @@ RUN mkdir -p data workspaces /home/node/.claude \
 
 USER node
 
-EXPOSE ${PORT}
+EXPOSE 3000
 
-CMD ["sh", "-c", "node_modules/.bin/next start --hostname 0.0.0.0 --port ${PORT:-3000}"]
+CMD ["sh", "-c", "exec node_modules/.bin/next start --hostname 0.0.0.0 --port ${PORT:-3000}"]

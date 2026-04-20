@@ -1,15 +1,11 @@
 services:
   claudeloop:
     image: ghcr.io/rohithbv/claudeloop:latest
-    ports:
-      - "${PORT:-3000}:${PORT:-3000}"
+    expose:
+      - "${PORT:-3000}"
     volumes:
-      # Persist the SQLite database across container restarts
       - claudeloop-data:/app/data
-      # Persist task working directories across container restarts
       - claudeloop-workspaces:/app/workspaces
-      # Mount host Claude CLI credentials for subscription auth.
-      # Run `claude` on the host and log in first, then start this container.
       - claudeloop-home:/home/node
     environment:
       - PORT=${PORT:-3000}
@@ -21,4 +17,4 @@ services:
 volumes:
   claudeloop-data:
   claudeloop-workspaces:
-  claudeloop-home
+  claudeloop-home:
